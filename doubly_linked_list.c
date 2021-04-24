@@ -10,7 +10,6 @@
  */
 
 
-
 #include<stdio.h>
 #include<stdlib.h>
  /* 필요한 헤더파일 추가 if necessary */
@@ -21,8 +20,6 @@ typedef struct Node {
 	struct Node* llink;
 	struct Node* rlink;
 } listNode;
-
-
 
 typedef struct Head {
 	struct Node* first;
@@ -46,7 +43,6 @@ int deleteNode(headNode* h, int key);
 int deleteLast(headNode* h);
 int deleteFirst(headNode* h);
 int invertList(headNode* h);
-
 void printList(headNode* h);
 
 
@@ -55,8 +51,7 @@ int main()
 	char command;
 	int key;
 	headNode* headnode = NULL;
-	printf("2020039071 JoJunHwa");
-
+	printf("2020039071 JoJunHwa\n");
 	do {
 		printf("----------------------------------------------------------------\n");
 		printf("                     Doubly Linked  List                        \n");
@@ -120,7 +115,6 @@ int main()
 	return 1;
 }
 
-
 int initialize(headNode** h) {  //&headnode가 인수로 들어옴 headnode가 가리키는 주소를 변경 할 수 있다는 뜻
 /* 리스트가 비어있지 않다면 freeList 함수를 호출해 리스트를 비움 */
 	if (*h != NULL)
@@ -131,19 +125,27 @@ int initialize(headNode** h) {  //&headnode가 인수로 들어옴 headnode가 �
 	return 1;
 }
 
-
 int freeList(headNode* h) {
 	listNode* p;
-	p = h->first;
-	while (p != NULL)
+	if (h->first == NULL)
 	{
-		free(p);
-		p = p->llink;
+		free(h);
+		return 0;
 	}
-	free(h);
+	if (h->first->rlink == NULL) // 리스트에 값이 하나이면 그 값 free
+		free(h->first);
+	else // 아니라면 차례로 free
+	{
+		p = h->first->rlink;
+		while (p != NULL)
+		{
+			free(p->llink);
+			p = p->rlink;
+		}
+	}
+	free(h); // 리스트의 값들을 다 free 한 후 headNode 도 free
 	return 0;
 }
-
 
 void printList(headNode* h) {
 	int i = 0;
@@ -167,18 +169,39 @@ void printList(headNode* h) {
 	printf("  items = %d\n", i);
 }
 
-
-
-
 /**
  * list에 key에 대한 노드하나를 추가
  */
 int insertLast(headNode* h, int key) {
-
+	listNode* node = (listNode*)malloc(sizeof(listNode));
+	listNode* p;
+	if (h->first == NULL) //빈 리스트이면
+	{
+		node->key = key;
+		node->rlink = NULL;
+		h->first = node;
+	}
+	else //리스트에 값이 한 개 이상이라면 
+	{
+		p = h->first;
+		if (p->rlink == NULL)
+		{
+			p->rlink = node;
+			node->llink = p;
+			node->key = key;
+			node->rlink = NULL;
+			return 0;
+		}
+		while (p->rlink != NULL)
+			p = p->rlink;
+		// 반복문을 나왔으므로 p는 리스트의 가장 마지막 값을 가리키고 있다
+		p->rlink = node;
+		node->llink = p;
+		node->key = key;
+		node->rlink = NULL;
+	}
 	return 0;
 }
-
-
 
 /**
  * list의 마지막 노드 삭제
@@ -188,8 +211,6 @@ int deleteLast(headNode* h) {
 
 	return 0;
 }
-
-
 
 /**
  * list 처음에 key에 대한 노드하나를 추가
@@ -208,7 +229,6 @@ int insertFirst(headNode* h, int key) {
 		h->first->llink = node;
 		node->rlink = h->first;
 		h->first = node;
-		
 	}
 	return 0;
 }
@@ -221,8 +241,6 @@ int deleteFirst(headNode* h) {
 	return 0;
 }
 
-
-
 /**
  * 리스트의 링크를 역순으로 재 배치
  */
@@ -231,14 +249,11 @@ int invertList(headNode* h) {
 	return 0;
 }
 
-
-
 /* 리스트를 검색하여, 입력받은 key보다 큰값이 나오는 노드 바로 앞에 삽입 */
 int insertNode(headNode* h, int key) {
 
 	return 0;
 }
-
 
 /**
  * list에서 key에 대한 노드 삭제
@@ -247,5 +262,3 @@ int deleteNode(headNode* h, int key) {
 
 	return 1;
 }
-
-
