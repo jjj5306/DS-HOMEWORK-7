@@ -10,10 +10,10 @@
  */
 
 
+
 #include<stdio.h>
 #include<stdlib.h>
  /* 필요한 헤더파일 추가 if necessary */
-
 
 typedef struct Node {
 	int key;
@@ -35,7 +35,6 @@ int initialize(headNode** h);
 		- initialize와 왜 다른지 이해 할것
 		- 이중포인터를 매개변수로 받아도 해제할 수 있을 것 */
 int freeList(headNode* h);
-
 int insertNode(headNode* h, int key);
 int insertLast(headNode* h, int key);
 int insertFirst(headNode* h, int key);
@@ -45,13 +44,13 @@ int deleteFirst(headNode* h);
 int invertList(headNode* h);
 void printList(headNode* h);
 
-
 int main()
 {
 	char command;
 	int key;
 	headNode* headnode = NULL;
 	printf("2020039071 JoJunHwa\n");
+
 	do {
 		printf("----------------------------------------------------------------\n");
 		printf("                     Doubly Linked  List                        \n");
@@ -203,12 +202,35 @@ int insertLast(headNode* h, int key) {
 	return 0;
 }
 
+
+
 /**
  * list의 마지막 노드 삭제
  */
 int deleteLast(headNode* h) {
-
-
+listNode* p = h->first;
+	listNode* pre;
+	if (p == NULL)
+	{
+		printf("Already empty list\n");
+		return 0;
+	}
+	else if (p->rlink == NULL) //리스트에 원소가 하나라면
+	{
+		p->llink = NULL;
+		free(p);
+		h->first = NULL;
+	}
+	else
+	{
+		while (p->rlink != NULL)
+			p = p->rlink;
+		// 반복문을 나왔으므로 p는 리스트의 가장 마지막 값을 가리키고 있다
+		pre = p->llink;
+		p->llink = NULL;
+		pre->rlink = NULL;
+		free(p);
+	}
 	return 0;
 }
 
@@ -237,8 +259,26 @@ int insertFirst(headNode* h, int key) {
  * list의 첫번째 노드 삭제
  */
 int deleteFirst(headNode* h) {
-
-	return 0;
+	listNode* p = h->first;
+	if (p == NULL)
+	{
+		printf("Already empty list\n");
+		return 0;
+	}
+	else if (p->rlink == NULL) //리스트에 원소가 하나라면
+	{
+		p->llink = NULL;
+		free(p);
+		h->first = NULL;
+	}
+	else
+	{
+		h->first = p->rlink;
+		p->rlink->llink = NULL; //리스트의 두 번째 원소는 첫 원소이다
+		p->rlink = NULL;
+		p->llink = NULL;
+		free(p);
+	}
 }
 
 /**
