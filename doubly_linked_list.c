@@ -364,6 +364,60 @@ int insertNode(headNode* h, int key) {
  * list에서 key에 대한 노드 삭제
  */
 int deleteNode(headNode* h, int key) {
-
+listNode* node = (listNode*)malloc(sizeof(listNode));
+	listNode* p;
+	listNode* pre;
+	if (h->first == NULL) //리스트가 비어있다면
+		printf("Already empty list\n");
+	else if (h->first->rlink == NULL) //리스트에 원소가 하나이고
+	{
+		if (h->first->key == key) //그 원소가 key와 같다면
+		{
+			free(h->first); //그 원소를 free 한다
+			h->first = NULL;
+		}
+		else
+			printf("Not in list\n");
+	}
+	else //리스트에 원소가 두 개 이상이라면
+	{
+		if (h->first->key == key) //첫 번째 원소를 삭제해야 한다면
+		{
+			p = h->first->rlink;
+			pre = h->first;
+			p->llink = NULL;
+			pre->rlink = NULL;
+			h->first = p;
+			free(pre);
+		}
+		else
+		{
+			p = h->first->rlink;
+			pre = p->llink;
+			while (p->rlink != NULL && p->key != key) //p가 key와 같거나 p가 리스트의 끝에 도달한다면 반복문 종료
+				p = p->rlink;
+			if (p->key == key) //p가 가리키는 key가 key와 같다면 그 부분 삭제, 그런데 그 부분이 리스트의 마지막 이면 다르게 처리
+			{
+				if (p->rlink == NULL)
+				{
+					p->llink = NULL;
+					pre->rlink = NULL;
+					free(p);
+					return 1;
+				}
+				else
+				{
+					p->rlink->llink = pre;
+					pre->rlink = p->rlink;
+					p->rlink = NULL;
+					p->llink = NULL;
+					free(p);
+					return 1;
+				}
+			}
+			else
+				printf("Not in list\n"); //아니라면 리스트에 없는 것
+		}
+	}
 	return 1;
 }
