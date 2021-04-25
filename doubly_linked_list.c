@@ -10,16 +10,17 @@
  */
 
 
-
 #include<stdio.h>
 #include<stdlib.h>
  /* 필요한 헤더파일 추가 if necessary */
+
 
 typedef struct Node {
 	int key;
 	struct Node* llink;
 	struct Node* rlink;
 } listNode;
+
 
 typedef struct Head {
 	struct Node* first;
@@ -35,6 +36,7 @@ int initialize(headNode** h);
 		- initialize와 왜 다른지 이해 할것
 		- 이중포인터를 매개변수로 받아도 해제할 수 있을 것 */
 int freeList(headNode* h);
+
 int insertNode(headNode* h, int key);
 int insertLast(headNode* h, int key);
 int insertFirst(headNode* h, int key);
@@ -43,6 +45,7 @@ int deleteLast(headNode* h);
 int deleteFirst(headNode* h);
 int invertList(headNode* h);
 void printList(headNode* h);
+
 
 int main()
 {
@@ -114,6 +117,7 @@ int main()
 	return 1;
 }
 
+
 int initialize(headNode** h) {  //&headnode가 인수로 들어옴 headnode가 가리키는 주소를 변경 할 수 있다는 뜻
 /* 리스트가 비어있지 않다면 freeList 함수를 호출해 리스트를 비움 */
 	if (*h != NULL)
@@ -123,6 +127,7 @@ int initialize(headNode** h) {  //&headnode가 인수로 들어옴 headnode가 �
 	(*h) ->first = NULL;
 	return 1;
 }
+
 
 int freeList(headNode* h) {
 	listNode* p;
@@ -146,6 +151,7 @@ int freeList(headNode* h) {
 	return 0;
 }
 
+
 void printList(headNode* h) {
 	int i = 0;
 	listNode* p;
@@ -168,6 +174,7 @@ void printList(headNode* h) {
 	printf("  items = %d\n", i);
 }
 
+
 /**
  * list에 key에 대한 노드하나를 추가
  */
@@ -179,6 +186,7 @@ int insertLast(headNode* h, int key) {
 		node->key = key;
 		node->rlink = NULL;
 		h->first = node;
+		node->llink = NULL;
 	}
 	else //리스트에 값이 한 개 이상이라면 
 	{
@@ -203,12 +211,11 @@ int insertLast(headNode* h, int key) {
 }
 
 
-
 /**
  * list의 마지막 노드 삭제
  */
 int deleteLast(headNode* h) {
-listNode* p = h->first;
+	listNode* p = h->first;
 	listNode* pre;
 	if (p == NULL)
 	{
@@ -234,6 +241,7 @@ listNode* p = h->first;
 	return 0;
 }
 
+
 /**
  * list 처음에 key에 대한 노드하나를 추가
  */
@@ -244,6 +252,7 @@ int insertFirst(headNode* h, int key) {
 		node->key = key;
 		node->rlink = NULL;
 		h->first = node;
+		node->llink = NULL;
 	}
 	else
 	{
@@ -254,6 +263,7 @@ int insertFirst(headNode* h, int key) {
 	}
 	return 0;
 }
+
 
 /**
  * list의 첫번째 노드 삭제
@@ -281,6 +291,7 @@ int deleteFirst(headNode* h) {
 	}
 }
 
+
 /**
  * 리스트의 링크를 역순으로 재 배치
  */
@@ -289,11 +300,65 @@ int invertList(headNode* h) {
 	return 0;
 }
 
+
 /* 리스트를 검색하여, 입력받은 key보다 큰값이 나오는 노드 바로 앞에 삽입 */
 int insertNode(headNode* h, int key) {
-
+	listNode* node = (listNode*)malloc(sizeof(listNode));
+	listNode* p;
+	node->key = key; //node에 memory allocation 후 key 값 저장
+	if (h->first == NULL) //리스트에 값이 하나도 없다면
+	{
+		h->first = node;
+		node->rlink = NULL;
+		node->llink = NULL;
+	}
+	else if (h->first->rlink == NULL) //리스트에 값이 하나라면
+	{
+		if (h->first->key >= key) //그 값이 key보다 크거나 같다면 그 앞에 삽입
+		{
+			h->first->llink = node;
+			node->rlink = h->first;
+			h->first = node;
+		}
+		else //그 값이 key보다 작다면 그 뒤에 삽입
+		{
+			node->llink = h->first;
+			h->first->rlink = node;
+			node->rlink = NULL;
+		}
+	}
+	else //리스트에 값이 두 개 이상이라면
+	{
+		if (h->first->key >= key) //리스트의 맨 앞에 삽입해야 한다면
+		{
+			h->first->llink = node;
+			node->rlink = h->first;
+			h->first = node;
+		}
+		else
+		{
+			p = h->first;
+			while (p->key < key && p->rlink != NULL) //리스트의 값이 key보다 크거나 같거나 마지막에 도달 할 때 까지 p를 이동시킴
+				p = p->rlink;
+			// 반복문을 나왔으므로 리스트의 끝에 도달했거나 p의 전 위치에 삽입하면 된다.
+			if (p->rlink == NULL) //리스트의 끝이면
+			{
+				p->rlink = node;
+				node->llink = p;
+				node->rlink = NULL;
+			}
+			else // 리스트의 끝이 아니라면 p 앞에 삽입
+			{
+				node->llink = p->llink;
+				p->llink->rlink = node;
+				node->rlink = p;
+				p->llink = node;
+			}
+		}
+	}
 	return 0;
 }
+
 
 /**
  * list에서 key에 대한 노드 삭제
