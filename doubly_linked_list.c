@@ -12,6 +12,7 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#pragma warning(disable:4996)
  /* 필요한 헤더파일 추가 if necessary */
 
 
@@ -124,7 +125,7 @@ int initialize(headNode** h) {  //&headnode가 인수로 들어옴 headnode가 �
 		freeList(*h);
 	/* *h에 메모리를 할당하고 헤더노드를 NULL로 설정 */
 	*h = (headNode*)malloc(sizeof(headNode));
-	(*h) ->first = NULL;
+	(*h)->first = NULL;
 	return 1;
 }
 
@@ -296,7 +297,55 @@ int deleteFirst(headNode* h) {
  * 리스트의 링크를 역순으로 재 배치
  */
 int invertList(headNode* h) {
-
+	listNode* p;
+	listNode* pre;
+	listNode* next;
+	if (h->first == NULL || h->first->rlink == NULL) //리스트에 값이 없거나 하나라면 그냥 종료
+		return 0;
+	else if (h->first->rlink->rlink == NULL) //리스트에 값이 두 개라면 그 두개를 바꿈
+	{
+		p = h->first->rlink;
+		p->llink = NULL;
+		p->rlink = h->first;
+		h->first->rlink = NULL;
+		h->first->llink = p;
+		h->first = p;
+	}
+	else //리스트에 값이 세 개 이상이라면
+	{
+		pre = h->first;
+		p = pre->rlink;
+		next = p->rlink;
+		/* 맨 처음에는 이걸 한 번 실행한다*/
+		p->rlink = pre;
+		pre->llink = p;
+		pre->rlink = NULL;
+		if (next->rlink == NULL) //만약 리스트의 원소가 세 개이면 종료한다.
+		{
+			next->rlink = p;
+			next->llink = NULL;
+			h->first = next;
+			return 0;
+		}
+		pre = p;
+		p = next;
+		next = next->rlink;
+		while (next->rlink != NULL) // next가 리스트의 마지막 일 때 까지 반복
+		{
+			p->rlink = pre;
+			pre->llink = p;
+			pre = p;
+			p = next;
+			next = next->rlink;
+		}
+		/* 반복문을 나왔으므로 현재 상태는 h -> first 에서 p까지 invert 완료*/
+		p->rlink = pre;
+		pre->llink = p;
+		p->llink = next;
+		next->rlink = p;
+		next->llink = NULL;
+		h->first = next;
+	}
 	return 0;
 }
 
@@ -364,7 +413,7 @@ int insertNode(headNode* h, int key) {
  * list에서 key에 대한 노드 삭제
  */
 int deleteNode(headNode* h, int key) {
-listNode* node = (listNode*)malloc(sizeof(listNode));
+	listNode* node = (listNode*)malloc(sizeof(listNode));
 	listNode* p;
 	listNode* pre;
 	if (h->first == NULL) //리스트가 비어있다면
@@ -395,13 +444,16 @@ listNode* node = (listNode*)malloc(sizeof(listNode));
 			p = h->first->rlink;
 			pre = p->llink;
 			while (p->rlink != NULL && p->key != key) //p가 key와 같거나 p가 리스트의 끝에 도달한다면 반복문 종료
+			{
 				p = p->rlink;
+				pre = pre->rlink;
+			}
 			if (p->key == key) //p가 가리키는 key가 key와 같다면 그 부분 삭제, 그런데 그 부분이 리스트의 마지막 이면 다르게 처리
 			{
 				if (p->rlink == NULL)
 				{
-					p->llink = NULL;
 					pre->rlink = NULL;
+					p->llink = NULL;
 					free(p);
 					return 1;
 				}
